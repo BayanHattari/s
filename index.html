@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>رحلة سارة — لعبة اختبارية عن الاحتراق الوظيفي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1: linear-gradient(180deg,#071426 0%, #123154 30%, #0b2236 100%);
+      --panel: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      --accent:#ffb86b;
+      --accent-2:#68d391;
+      --muted: #c9d6ea;
+      --glass: rgba(255,255,255,0.04);
+      --card-radius:18px;
+      font-family: 'Cairo', sans-serif;
+      color:#f7fbff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:var(--bg1);display:flex;align-items:center;justify-content:center;padding:20px}
+    .wrap{width:100%;max-width:900px;background:var(--panel);border-radius:20px;padding:18px;box-shadow:0 10px 40px rgba(2,6,23,0.6);backdrop-filter: blur(6px);}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,#ff8a65,#ffb86b);display:grid;place-items:center;font-weight:700;color:#081226;font-size:26px;box-shadow:0 6px 20px rgba(0,0,0,0.35)}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .content{display:grid;grid-template-columns: 1fr 360px;gap:18px;margin-top:16px}
+    @media(max-width:980px){ .content{grid-template-columns:1fr} .side{order:2} }
+
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:var(--card-radius);padding:18px;min-height:360px;display:flex;flex-direction:column;justify-content:space-between}
+    .story{min-height:160px}
+    .question-title{font-size:18px;margin:0 0 8px}
+    .question-text{color:var(--muted);margin:0 0 14px;line-height:1.6}
+    .choices{display:flex;flex-direction:column;gap:12px}
+    .choice{background:var(--glass);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:transform .18s ease, box-shadow .18s ease}
+    .choice:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(2,6,23,0.45)}
+    .choice.selected{outline:3px solid rgba(255,184,107,0.16);box-shadow:0 14px 36px rgba(255,184,107,0.06)}
+    .controls{display:none;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
+    .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
+    .btn.primary{background:var(--accent);color:#081226}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted)}
+
+    .progress-wrap{background:rgba(255,255,255,0.03);height:10px;border-radius:8px;overflow:hidden;margin-top:12px}
+    .progress{height:100%;width:0%;background:linear-gradient(90deg,#ffb86b,#ffdca8);transition:width .45s ease}
+
+    .side{padding:14px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));min-height:360px}
+    .meta{display:flex;flex-direction:column;gap:12px}
+    .score{font-size:18px;font-weight:700}
+    .muted{color:var(--muted);font-size:13px}
+    .result-card{margin-top:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.03)}
+    .footer{margin-top:12px;text-align:center;color:var(--muted);font-size:13px}
+
+    .fade-in{animation:fadeIn .5s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+    .final{display:none;flex-direction:column;gap:12px;align-items:center;justify-content:center;padding:18px}
+    .final.show{display:flex}
+    .final h2{margin:0;font-size:22px}
+    .advice{background:rgba(255,255,255,0.03);padding:12px;border-radius:10px;color:var(--muted);max-width:640px;text-align:center}
+
+    .row{display:flex;gap:8px;align-items:center}
+    .muted-pill{padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);font-size:13px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap fade-in">
+    <header>
+      <div class="brand">
+        <div class="logo">سـ</div>
+        <div>
+          <h1>رحلة سارة — لعبة تفاعلية عن الاحتراق الوظيفي</h1>
+          <p class="lead">اختبار خفيف وممتع — اتخذي القرارات واصنعي مصير سارة</p>
+        </div>
+      </div>
+      <div class="row">
+        <button id="restartBtn" class="btn ghost">⟲ إعادة</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="panel">
+        <div class="story">
+          <div id="stageIntro" class="fade-in">
+            <h2 class="question-title">قصة قصيرة — اختاري بحكمة</h2>
+            <p class="question-text">أنتِ تلعبين دور سارة. في كل مرحلة ستواجهين خيارًا — اختياراتك تحدد إن كانت سارة ستحافظ على توازنها أم تعاني من الاحتراق الوظيفي.</p>
+            <button id="startBtn" class="btn primary" style="margin-top:10px;">ابدئي اللعبة</button>
+          </div>
+
+          <div id="questionArea" style="display:none">
+            <div id="qTitle" class="question-title"></div>
+            <div id="qText" class="question-text"></div>
+            <div id="choices" class="choices"></div>
+            <div class="progress-wrap"><div id="progressBar" class="progress"></div></div>
+          </div>
+        </div>
+
+        <div class="controls" id="controlsBox">
+          <div class="muted">المرحلة <span id="currentIndex">0</span> من <span id="totalQ">5</span></div>
+          <div><button id="nextBtn" class="btn primary" disabled>التالي ▶</button></div>
+        </div>
+
+        <div id="finalScreen" class="final">
+          <div id="finalEmoji" style="font-size:40px">🙂</div>
+          <h2 id="finalTitle">النهاية</h2>
+          <div id="finalMsg" class="advice"></div>
+          <button id="playAgain" class="btn primary">إعادة اللعب</button>
+        </div>
+      </div>
+
+      <aside class="side">
+        <div class="meta">
+          <div class="score">النقاط: <span id="scoreVal">0</span></div>
+          <div class="muted">تقدّم: <span id="progressText">0%</span></div>
+          <div class="result-card">
+            <div class="muted-pill">قصة: سارة الموظفة الطموحة</div>
+            <p class="muted" style="margin:8px 0 0">اكتشفي من خلال قراراتك ما إذا كانت سارة ستحافظ على توازنها أم تواجه الاحتراق الوظيفي.</p>
+          </div>
+          <div class="footer">اختبار توعوي</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+<script>
+const QUESTIONS = [
+  {q:"استيقظتِ متعبة ولديكِ اجتماع صباحي مهم، ماذا تفعلين؟",opts:[{t:"أذهب رغم الإرهاق.",v:2},{t:"أشارك عبر الإنترنت لأرتاح.",v:1},{t:"أطلب تأجيل بسيط وأرتاح قليلاً.",v:0}]},
+  {q:"مديرك طلب مهمة إضافية قبل نهاية اليوم.",opts:[{t:"أنجزها مهما كان الوقت.",v:2},{t:"أقترح موعدًا آخر مناسب.",v:0},{t:"أوافق بشرط تقسيم المهمة.",v:1}]},
+  {q:"بدأتِ تفقدين الحماس للعمل.",opts:[{t:"أتجاهل وأكمل.",v:2},{t:"آخذ راحة قصيرة وأعيد التفكير.",v:0},{t:"أتحدث مع صديقة عن مشاعري.",v:1}]},
+  {q:"صديقتكِ تقترح الخروج بعد دوام متعب.",opts:[{t:"أرفض لأكمل العمل.",v:2},{t:"أخرج قليلاً لتفريغ الضغط.",v:1},{t:"أوافق وأعتبرها راحة مستحقة.",v:0}]},
+  {q:"وصلتِ لنهاية الأسبوع وأنتِ مرهقة.",opts:[{t:"أعمل لتعويض ما فات.",v:2},{t:"أرتاح يوم وأكمل لاحقًا.",v:1},{t:"أغلق اللابتوب وأستمتع بالإجازة.",v:0}]}
+];
+let current=0,score=0;const total=QUESTIONS.length;
+const qTitle=document.getElementById('qTitle'),qText=document.getElementById('qText'),choices=document.getElementById('choices'),nextBtn=document.getElementById('nextBtn'),progress=document.getElementById('progressBar'),progressText=document.getElementById('progressText'),scoreVal=document.getElementById('scoreVal'),currentIndex=document.getElementById('currentIndex'),stageIntro=document.getElementById('stageIntro'),questionArea=document.getElementById('questionArea'),finalScreen=document.getElementById('finalScreen'),finalTitle=document.getElementById('finalTitle'),finalMsg=document.getElementById('finalMsg'),finalEmoji=document.getElementById('finalEmoji'),controlsBox=document.getElementById('controlsBox');
+function showQ(){const item=QUESTIONS[current];qTitle.textContent=`السؤال ${current+1}`;qText.textContent=item.q;choices.innerHTML='';item.opts.forEach(o=>{const d=document.createElement('div');d.className='choice';d.textContent=o.t;d.onclick=()=>select(d,o.v);choices.appendChild(d)});nextBtn.disabled=true;currentIndex.textContent=current+1;progressText.textContent=Math.round(current/total*100)+'%';progress.style.width=Math.round(current/total*100)+'%'}
+let selected=null;function select(el,val){document.querySelectorAll('.choice').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selected=val;nextBtn.disabled=false;}
+nextBtn.onclick=()=>{if(selected==null)return;score+=selected;scoreVal.textContent=score;current++;if(current<total){selected=null;showQ();}else endGame();};
+function endGame(){questionArea.style.display='none';controlsBox.style.display='none';finalScreen.classList.add('show');const pct=Math.round(score/(total*2)*100);if(pct>=65){finalTitle.textContent='🔴 خطر احتراق مرتفع';finalMsg.textContent='نتيجتك تشير إلى خطر عالٍ. خذي إجازة قصيرة وراجعي نمط حياتك.';finalEmoji.textContent='🔥';}else if(pct>=35){finalTitle.textContent='🟡 متوسطة — بحاجة للانتباه';finalMsg.textContent='هناك علامات مبكرة للإرهاق. خصصي وقتًا للراحة واهتمي بنومك.';finalEmoji.textContent='⚠️';}else{finalTitle.textContent='🟢 ممتاز — توازن صحي';finalMsg.textContent='توازنك رائع! استمري في أخذ فترات راحة ونشاطات تحبينها.';finalEmoji.textContent='🌿';}}
+document.getElementById('startBtn').onclick=()=>{stageIntro.style.display='none';questionArea.style.display='block';controlsBox.style.display='flex';showQ();}
+document.getElementById('restartBtn').onclick=()=>{stageIntro.style.display='block';questionArea.style.display='none';finalScreen.classList.remove('show');controlsBox.style.display='none';score=0;current=0;scoreVal.textContent=0;progress.style.width='0%';progressText.textContent='0%';}
+document.getElementById('playAgain').onclick=()=>{finalScreen.classList.remove('show');score=0;current=0;controlsBox.style.display='flex';showQ();questionArea.style.display='block';}
+</script>
+</body>
+</html>
